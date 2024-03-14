@@ -71,38 +71,69 @@ class Board extends Component {
   /** handle changing a cell: update board & determine if winner */
 
   flipCellsAround(coord) {
+    // console.log('FLIPPING', coord)
     let { ncols, nrows } = this.props;
     let board = this.state.board;
     let [y, x] = coord.split("-").map(Number);
 
+    // Pass in coordinates of what needs to be changed
     function flipCell(y, x) {
       // if this coord is actually on board, flip it
 
+      // if column number x is less than or equal to 0 and x is less than ncols (5) and if row number y is less than or equal to 0 and y is less than nrows (5)
       if (x >= 0 && x < ncols && y >= 0 && y < nrows) {
+        // Takes current cell and changes it to be opposite (board = true or false, so if current board is true, it creates false)
         board[y][x] = !board[y][x];
       }
     }
 
     // TODO: flip this cell and the cells around it
+    // Initial cell
+    flipCell(y, x);
+    // Right cell
+    flipCell(y, x - 1);
+    // Left cell
+    flipCell(y, x + 1);
+    // Top cell
+    flipCell(y - 1, x);
+    // Bottom cell
+    flipCell(y + 1, x);
+
 
     // win when every cell is turned off
     // TODO: determine is the game has been won
+    // Every cell, in every row, in the whole board, should be false
+    let hasWon = board.every(row => row.every(cell => !cell));
+    
 
-    // this.setState({board, hasWon});
+    this.setState({board, hasWon});
   }
 
   /** Render game board or winning message. */
 
   render() {
-    // if the game is won, just show a winning msg & render nothing else
+    // TODO: if the game is won, just show a winning msg & render nothing else
+    if (this.state.hasWon) {
+      return <h1>You Win!</h1>;
+    }
 
     // TODO: make table board
     let tblBoard = [];
+    // Creates 5 rows with y = rows
     for (let y = 0; y < this.props.nrows; y++) {
       let row = [];
+      // Creates 5 columns with x = columns
       for (let x = 0; x < this.props.ncols; x++) {
-        let coord = `${y}-${x}`
-        row.push(<Cell key={coord} isLit={this.state.board[y][x]} />);
+        // Creates coordinates based on existing row(y) and column(x) location
+        let coord = `${y}-${x}`;
+        // Pushes the component Cell into each row with a key as their coordinate and isLit being true or false based off CreateBoard randomness in state
+        row.push(
+          <Cell
+            key={coord}
+            isLit={this.state.board[y][x]}
+            flipCellsAroundMe={() => this.flipCellsAround(coord)}
+          />
+        );
       }
       tblBoard.push(<tr key={y}>{row}</tr>);
     }
